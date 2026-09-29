@@ -5,6 +5,7 @@ import { getServerEnv } from "@/shared/config/server-env";
 import type { FileStorage } from "./file-storage";
 import { LocalFileStorage } from "./local-file-storage";
 import { S3FileStorage } from "./s3-file-storage";
+import { VercelBlobFileStorage } from "./vercel-blob-file-storage";
 
 let storageInstance: FileStorage | undefined;
 
@@ -21,6 +22,13 @@ function createFileStorage(): FileStorage {
       secretAccessKey: env.S3_SECRET_ACCESS_KEY!,
       publicUrl: env.S3_PUBLIC_URL!,
       forcePathStyle: env.S3_FORCE_PATH_STYLE,
+    });
+  }
+
+  if (env.STORAGE_DRIVER === "vercel-blob") {
+    return new VercelBlobFileStorage({
+      storeId: env.BLOB_STORE_ID,
+      readWriteToken: env.BLOB_READ_WRITE_TOKEN,
     });
   }
 

@@ -10,7 +10,7 @@ const serverEnvSchema = z
       .min(32, "BETTER_AUTH_SECRET precisa de pelo menos 32 caracteres"),
     APP_URL: z.url({ message: "APP_URL deve ser a URL pública do site" }),
     TENANT: z.string().min(1).default("demo"),
-    STORAGE_DRIVER: z.enum(["local", "s3"]).default("local"),
+    STORAGE_DRIVER: z.enum(["local", "s3", "vercel-blob"]).default("local"),
     STORAGE_LOCAL_DIR: z.string().min(1).default("./storage"),
     S3_BUCKET: z.string().optional(),
     S3_REGION: z.string().default("auto"),
@@ -19,6 +19,9 @@ const serverEnvSchema = z
     S3_SECRET_ACCESS_KEY: z.string().optional(),
     S3_PUBLIC_URL: z.url().optional(),
     S3_FORCE_PATH_STYLE: z.stringbool().default(false),
+    /** Criadas pela Vercel ao conectar um Blob store ao projeto. */
+    BLOB_READ_WRITE_TOKEN: z.string().optional(),
+    BLOB_STORE_ID: z.string().optional(),
     /** Definida automaticamente pela Vercel em todo deploy. */
     VERCEL: z.string().optional(),
   })
@@ -29,7 +32,16 @@ const serverEnvSchema = z
         code: "custom",
         path: ["STORAGE_DRIVER"],
         message:
-          "Na Vercel use STORAGE_DRIVER=s3 (ex.: Cloudflare R2); o disco dela não guarda arquivos",
+          "Na Vercel use STORAGE_DRIVER=vercel-blob (ou s3); o disco dela não guarda arquivos",
+      });
+    }
+
+    if (env.STORAGE_DRIVER === "vercel-blob" && !env.BLOB_READ_WRITE_TOKEN && !env.BLOB_STORE_ID) {
+      context.addIssue({
+        code: "custom",
+        path: ["BLOB_READ_WRITE_TOKEN"],
+        message:
+          "Conecte um Blob store ao projeto na Vercel (aba Storage) ou defina BLOB_READ_WRITE_TOKEN",
       });
     }
 

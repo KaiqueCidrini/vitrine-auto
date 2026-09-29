@@ -4,6 +4,9 @@
  *
  * O Drizzle registra o que já foi aplicado na tabela drizzle.__drizzle_migrations,
  * então rodar várias vezes é seguro.
+ *
+ * Na Vercel roda automaticamente antes de cada build (ver vercel.json), mas só no
+ * deploy de produção: um preview de outra branch não altera o banco de produção.
  */
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
@@ -43,11 +46,29 @@ async function ensureDatabaseExists(connectionString: string): Promise<void> {
   }
 }
 
-async function runMigrations(): Promise<void> {
-  const connectionString = process.env.DATABASE_URL;
+function isVercelPreviewBuild(): boolean {
+  return Boolean(process.env.VERCEL) && process.env.VERCEL_ENV !== "production";
+}
+
+/**
+ * O Neon da Vercel também entrega DATABASE_URL_UNPOOLED (conexão direta, sem o pooler),
+ * que é a recomendada para migrations. Fora da Vercel ela não existe e usamos a DATABASE_URL.
+ */
+function getMigrationConnectionString(): string {
+  const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL não definida");
   }
+  return connectionString;
+}
+
+async function runMigrations(): Promise<void> {
+  if (isVercelPreviewBuild()) {
+    console.log("Deploy de preview na Vercel: migrations ignoradas (só rodam em produção).");
+    return;
+  }
+
+  const connectionString = getMigrationConnectionString();
 
   await ensureDatabaseExists(connectionString);
 

@@ -12,7 +12,7 @@ O visitante navega pelo estoque, filtra, vê fotos e ficha técnica, e agenda um
 | Estilo       | Tailwind CSS 4, com tema por variáveis CSS                                                 |
 | Banco        | PostgreSQL 17 + Drizzle ORM (migrations em SQL versionadas no Git)                         |
 | Login        | Better Auth (e-mail e senha, sem cadastro público, perfis gerente/vendedor)                |
-| Fotos        | sharp (redimensiona, converte para WebP e remove EXIF) + disco local ou S3/R2              |
+| Fotos        | sharp (redimensiona, converte para WebP e remove EXIF) + disco local, Vercel Blob ou S3/R2 |
 | Validação    | Zod (mesmo schema no formulário e no servidor)                                             |
 | Testes       | Vitest                                                                                     |
 | Deploy       | Docker Compose + Caddy (HTTPS automático)                                                  |
@@ -131,61 +131,65 @@ Para adicionar uma fonte, instale o pacote `@fontsource-variable/<fonte>`, decla
 
 ## Deploy na Vercel
 
-Bom para testar e evoluir o projeto sem custo. Atenção: o plano gratuito (Hobby) da Vercel é só para uso pessoal, sem fins comerciais. Com cliente pagando, use o plano Pro ou a VPS descrita mais abaixo.
+Bom para testar e evoluir o projeto sem custo, com tudo num painel só. Atenção: o plano gratuito (Hobby) da Vercel é só para uso pessoal, sem fins comerciais. Com cliente pagando, use o plano Pro ou a VPS descrita mais abaixo.
 
-Na Vercel não existe disco permanente nem servidor ligado o tempo todo, então o banco fica no **Neon** e as fotos no **Cloudflare R2**. O código já está preparado para isso: as fotos são reduzidas no navegador antes do envio (a Vercel limita cada envio a 4,5 MB), as conexões com o banco são ajustadas automaticamente e o `vercel.json` já coloca as funções em São Paulo (`gru1`), perto do banco.
+Na Vercel não existe disco permanente nem servidor ligado o tempo todo, então os dados ficam em dois serviços criados pela própria aba **Storage** do projeto:
+
+| O quê | Serviço                         | Grátis no Hobby                                        |
+| ----- | ------------------------------- | ------------------------------------------------------ |
+| Banco | **Neon** (Postgres, via Vercel) | plano gratuito do Neon, sem cartão                     |
+| Fotos | **Vercel Blob** (store público) | 1 GB de armazenamento e 10 GB de transferência por mês |
+
+Você não cria conta no Neon nem copia senha: a Vercel cria o banco e o Blob e injeta as credenciais (`DATABASE_URL`, `BLOB_STORE_ID` etc.) no projeto sozinha. No Hobby não há cobrança surpresa: se passar do limite gratuito, o serviço é pausado em vez de cobrar.
+
+O código já está preparado: as fotos são reduzidas no navegador antes do envio (a Vercel limita cada envio a 4,5 MB) e convertidas para WebP no servidor (cada foto fica com uns 150 a 300 KB, então 1 GB guarda alguns milhares), as conexões com o banco são ajustadas automaticamente, as migrations rodam sozinhas a cada deploy de produção e o `vercel.json` coloca as funções em São Paulo (`gru1`).
 
 ### 1. Código no GitHub
 
 Crie um repositório **privado** no GitHub e envie o projeto (no VS Code: aba _Source Control_ → _Publish to GitHub_). O `.env` fica de fora automaticamente pelo `.gitignore`.
 
-### 2. Banco no Neon
+### 2. Projeto na Vercel
 
-1. Crie uma conta em [neon.com](https://neon.com) e um projeto na região **AWS South America (São Paulo)**.
-2. Clique em **Connect**, deixe **Connection pooling** ligado e copie a connection string (o endereço tem `-pooler`).
-3. Troque `sslmode=require` por `sslmode=verify-full` no final da string (só evita um aviso no terminal).
-4. Na sua máquina, crie as tabelas e o primeiro gerente apontando para o Neon. No PowerShell, dentro da pasta do projeto:
+1. Em [vercel.com](https://vercel.com), entre com a conta do GitHub, clique em **Add New** → **Project** e importe o repositório.
+2. Antes de clicar em **Deploy**, abra **Environment Variables** e cadastre:
+
+   | Variável             | Valor                                                                                               |
+   | -------------------- | --------------------------------------------------------------------------------------------------- |
+   | `BETTER_AUTH_SECRET` | um texto aleatório de 32+ caracteres (gere com `openssl rand -base64 32` ou num gerador de senhas)  |
+   | `APP_URL`            | `https://nome-do-projeto.vercel.app` (o nome aparece nessa mesma tela; troque quando tiver domínio) |
+   | `TENANT`             | `demo` ou a pasta do seu cliente em `src/tenants/`                                                  |
+   | `STORAGE_DRIVER`     | `vercel-blob`                                                                                       |
+
+3. Clique em **Deploy**. **Esse primeiro deploy vai falhar**, porque o banco ainda não existe. É esperado: siga para o passo 3.
+
+### 3. Banco e fotos pela aba Storage
+
+1. No projeto, abra a aba **Storage** → **Create Database** → **Neon** → **Continue**.
+   - Região: **São Paulo** (`sa-east-1`), ou a mais próxima que aparecer, para ficar perto das funções.
+   - Plano: **Free**.
+   - Em **Connect to project**, deixe marcados os três ambientes (Development, Preview e Production) e confirme.
+2. Ainda em **Storage**, clique em **Create Database** (ou **Create**) → **Blob**.
+   - Acesso: **Public**. Isso é importante: as fotos dos anúncios precisam abrir para qualquer visitante, e o tipo de acesso não pode ser trocado depois.
+   - Região: **São Paulo** (`gru1`), ou a mais próxima que aparecer.
+   - Conecte ao projeto nos três ambientes.
+3. Confira em **Settings** → **Environment Variables** que apareceram `DATABASE_URL` (e outras do Neon) e `BLOB_STORE_ID`.
+4. Vá em **Deployments**, clique nos **⋯** do último deploy → **Redeploy**. Agora o build cria as tabelas no banco sozinho (no log aparece "Migrations aplicadas com sucesso.") e o site sobe.
+
+### 4. Primeiro gerente
+
+O cadastro do primeiro gerente é feito uma vez, da sua máquina, apontando para o banco da Vercel:
+
+1. Copie o valor de `DATABASE_URL`: em **Settings** → **Environment Variables**, clique na variável para revelar o valor. Outra opção: aba **Storage** → banco Neon → **.env.local** → **Show secret**.
+2. No PowerShell, dentro da pasta do projeto:
 
    ```powershell
-   $env:DATABASE_URL="cole-aqui-a-connection-string-do-neon"
-   npm run db:migrate
+   $env:DATABASE_URL="cole-aqui-o-valor-copiado"
    npm run admin:create
    ```
 
    A variável vale só para aquele terminal; feche-o depois para voltar a usar o banco local.
 
-### 3. Fotos no Cloudflare R2
-
-O R2 pede um cartão cadastrado para ativar, mas o uso até 10 GB de fotos é gratuito e o download das imagens não é cobrado.
-
-1. No painel da Cloudflare, abra **R2 Object Storage**, ative o serviço e crie um bucket (ex.: `vitrine-fotos`).
-2. No bucket, abra **Settings** → **Public Development URL** → **Enable**. Copie a URL `https://pub-....r2.dev`.
-3. Volte em **R2** → **Manage API tokens** → **Create API token**, com permissão **Object Read & Write** só nesse bucket. Guarde o **Access Key ID**, o **Secret Access Key** e o endpoint `https://<account-id>.r2.cloudflarestorage.com` (o secret só aparece uma vez).
-
-A URL `r2.dev` tem limite de acessos e serve para testes. Quando tiver um domínio na Cloudflare, conecte um subdomínio (ex.: `fotos.seudominio.com.br`) em **Settings** → **Custom Domains** e troque o `S3_PUBLIC_URL`.
-
-### 4. Projeto na Vercel
-
-1. Em [vercel.com](https://vercel.com), **Add New** → **Project** → importe o repositório do GitHub.
-2. Antes de clicar em **Deploy**, abra **Environment Variables** e cadastre:
-
-   | Variável               | Valor                                                                                              |
-   | ---------------------- | -------------------------------------------------------------------------------------------------- |
-   | `DATABASE_URL`         | connection string _pooled_ do Neon                                                                 |
-   | `BETTER_AUTH_SECRET`   | um texto aleatório de 32+ caracteres (gere com `openssl rand -base64 32` ou num gerador de senhas) |
-   | `APP_URL`              | por enquanto `https://nome-do-projeto.vercel.app` (troque quando tiver domínio)                    |
-   | `TENANT`               | `demo` ou a pasta do seu cliente em `src/tenants/`                                                 |
-   | `STORAGE_DRIVER`       | `s3`                                                                                               |
-   | `S3_BUCKET`            | nome do bucket                                                                                     |
-   | `S3_REGION`            | `auto`                                                                                             |
-   | `S3_ENDPOINT`          | `https://<account-id>.r2.cloudflarestorage.com`                                                    |
-   | `S3_ACCESS_KEY_ID`     | do token do R2                                                                                     |
-   | `S3_SECRET_ACCESS_KEY` | do token do R2                                                                                     |
-   | `S3_PUBLIC_URL`        | a URL `https://pub-....r2.dev` do bucket                                                           |
-
-3. Clique em **Deploy**. Ao terminar, abra o endereço `.vercel.app` e entre em `/admin` com o gerente criado no passo 2.
-
-Sempre que mudar uma variável, faça um novo deploy (**Deployments** → **⋯** → **Redeploy**): variáveis como `S3_PUBLIC_URL` e `TENANT` entram no build.
+3. Abra `https://nome-do-projeto.vercel.app/admin` e entre com o gerente criado. Os vendedores são cadastrados pelo próprio painel, em **Equipe**.
 
 ### 5. Domínio próprio
 
@@ -198,10 +202,28 @@ Sempre que mudar uma variável, faça um novo deploy (**Deployments** → **⋯*
 
 ### Atualizações e cuidados
 
-- Cada `git push` na branch principal gera um deploy novo automaticamente.
-- Se uma atualização trouxer migration nova (arquivo novo em `database/migrations/`), rode `npm run db:migrate` apontando para o Neon, como no passo 2, antes ou logo depois do deploy.
-- Os deploys de _preview_ (outras branches) usam o mesmo banco e têm outro endereço, então o login não funciona neles. Teste o painel no endereço principal.
+- Cada `git push` na branch principal gera um deploy novo automaticamente. Se a atualização trouxer migration nova (arquivo novo em `database/migrations/`), ela é aplicada no próprio build de produção; se a migration falhar, o deploy falha e o site continua na versão anterior.
+- Deploys de _preview_ (outras branches) não rodam migrations e têm outro endereço, então o login não funciona neles. Teste o painel no endereço principal.
+- Sempre que mudar uma variável de ambiente, faça **Redeploy**: `STORAGE_DRIVER` e `TENANT` entram no build.
+- Acompanhe o consumo em **Usage**. Cada foto enviada conta uma operação de escrita no Blob (o Hobby inclui 2 mil por mês); visualizações de fotos já em cache não contam.
+- Navegar pelo navegador de arquivos do Blob no painel da Vercel também gasta operações; evite ficar atualizando essa tela.
 - O limite de tentativas de login fica em memória; na Vercel ele é menos eficaz, porque cada instância tem a sua. Para produção de verdade, mova o contador para o banco.
+
+### Alternativa: fotos no Cloudflare R2
+
+Se passar de 1 GB de fotos e não quiser pagar a Vercel, o projeto também funciona com o Cloudflare R2 (10 GB grátis, pede cartão para ativar). Crie um bucket com URL pública e um token com permissão **Object Read & Write**, e troque as variáveis:
+
+| Variável               | Valor                                           |
+| ---------------------- | ----------------------------------------------- |
+| `STORAGE_DRIVER`       | `s3`                                            |
+| `S3_BUCKET`            | nome do bucket                                  |
+| `S3_REGION`            | `auto`                                          |
+| `S3_ENDPOINT`          | `https://<account-id>.r2.cloudflarestorage.com` |
+| `S3_ACCESS_KEY_ID`     | do token do R2                                  |
+| `S3_SECRET_ACCESS_KEY` | do token do R2                                  |
+| `S3_PUBLIC_URL`        | URL pública do bucket                           |
+
+As fotos já enviadas continuam no Blob; a troca vale para os envios novos, então faça isso antes de ter muitos anúncios.
 
 ## Deploy em VPS
 
