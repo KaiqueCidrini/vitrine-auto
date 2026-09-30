@@ -113,21 +113,24 @@ Regras que mantêm o código organizado:
 
 1. **Configuração**: copie `src/tenants/demo/` para `src/tenants/<slug-do-cliente>/`, renomeie a constante e preencha nome, cores, fontes, contato, WhatsApp, horários, mensagens e seções da home. O TypeScript e o Zod apontam qualquer campo errado.
 2. **Registro**: adicione o cliente em `src/tenants/tenant-registry.ts`.
-3. **Arquivos**: coloque o logo (e, se quiser, a imagem do topo) em `public/tenants/<slug>/`.
+3. **Arquivos**: coloque o logo (e, se quiser, a imagem do topo e uma versão clara do logo em `logo.srcOnDark`) em `public/tenants/<slug>/`.
 4. **Teste**: `npm test` valida todas as configurações, inclusive se o logo existe. Rode `TENANT=<slug> npm run dev` para ver o resultado.
 5. **Deploy**: no servidor do cliente, `TENANT=<slug>` no `.env`.
 
 O que dá para mudar só pela configuração:
 
 - **Cores**: 13 cores, incluindo cabeçalho e rodapé. O esquema claro ou escuro é detectado sozinho.
-- **Fonte**: Inter, Montserrat ou Outfit.
-- **Cantos**: arredondamento dos cantos, de reto até bem arredondado.
+- **Fonte**: Inter, Montserrat ou Outfit no texto; nos títulos, opcionalmente uma serifada (`headingFont`: Playfair Display, Cormorant Garamond ou Fraunces) para um visual mais editorial.
+- **Cantos**: arredondamento dos cantos, de reto até bem arredondado. Os botões podem ser "pílula" (`buttonShape: "pill"`, padrão) ou seguir os cantos do tema (`"rounded"`).
+- **Logo claro**: `logo.srcOnDark` é usado no cabeçalho transparente, sobre o banner da home, quando o banner é escuro.
 - **Home**: ordem e conteúdo das seções (topo, destaques, atalhos por carroceria, diferenciais, chamada de contato).
 - **Textos**: mensagens do WhatsApp e SEO.
 
 Os exemplos `demo` e `premium-example` mostram dois visuais bem diferentes com o mesmo código.
 
-Para adicionar uma fonte, instale o pacote `@fontsource-variable/<fonte>`, declare em `src/shared/theme/fonts.ts` e inclua em `FONT_OPTIONS`. Para um tipo novo de seção na home, adicione o schema em `tenant-config-schema.ts` e o componente em `features/home/sections/`. O `switch` de `home-sections.tsx` acusa erro de compilação se faltar o componente.
+Para adicionar uma fonte, instale o pacote `@fontsource-variable/<fonte>`, declare em `src/shared/theme/fonts.ts` e inclua em `FONT_OPTIONS` (texto) ou `HEADING_FONT_OPTIONS` (títulos).
+
+As animações (entrada do banner, itens surgindo ao rolar, carrosséis) ficam em `globals.css`, `shared/ui/reveal.tsx` e `shared/ui/scroll-carousel.tsx`. Elas respeitam a opção "reduzir movimento" do sistema e, sem JavaScript, o conteúdo aparece normalmente. Para um tipo novo de seção na home, adicione o schema em `tenant-config-schema.ts` e o componente em `features/home/sections/`. O `switch` de `home-sections.tsx` acusa erro de compilação se faltar o componente.
 
 ## Deploy na Vercel
 

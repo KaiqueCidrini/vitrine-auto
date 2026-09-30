@@ -34,13 +34,13 @@ function buildSpecs(vehicle: VehicleDetails): Spec[] {
 
 export function VehicleSpecList({ vehicle }: { vehicle: VehicleDetails }) {
   return (
-    <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <dl className="grid grid-cols-2 gap-x-6 sm:grid-cols-3">
       {buildSpecs(vehicle).map(({ icon: Icon, label, value }) => (
-        <div key={label} className="border-border bg-surface rounded-md border p-3.5">
-          <dt className="text-muted-foreground flex items-center gap-1.5 text-xs">
-            <Icon className="size-3.5" aria-hidden /> {label}
+        <div key={label} className="border-border border-t py-5">
+          <dt className="text-muted-foreground flex items-center gap-2 text-xs tracking-wide uppercase">
+            <Icon className="size-4" aria-hidden /> {label}
           </dt>
-          <dd className="mt-1 font-semibold">{value}</dd>
+          <dd className="mt-2 text-lg font-medium">{value}</dd>
         </div>
       ))}
     </dl>

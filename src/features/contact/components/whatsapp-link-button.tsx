@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-import { buttonClassName, type ButtonSize } from "@/shared/ui/button";
+import { buttonClassName, type ButtonSize, type ButtonVariant } from "@/shared/ui/button";
 
 import { buildWhatsAppLink } from "../build-whatsapp-link";
 
@@ -9,6 +9,8 @@ interface WhatsAppLinkButtonProps {
   message: string;
   label: string;
   size?: ButtonSize;
+  /** Sobrescreve a cor padrão (verde do WhatsApp); use quando o botão precisa ceder destaque a outra ação na mesma tela. */
+  variant?: ButtonVariant;
   className?: string;
 }
 
@@ -18,6 +20,7 @@ export function WhatsAppLinkButton({
   message,
   label,
   size,
+  variant = "whatsapp",
   className,
 }: WhatsAppLinkButtonProps) {
   return (
@@ -25,7 +28,7 @@ export function WhatsAppLinkButton({
       href={buildWhatsAppLink(phoneNumber, message)}
       target="_blank"
       rel="noopener noreferrer"
-      className={buttonClassName({ variant: "whatsapp", size, className })}
+      className={buttonClassName({ variant, size, className })}
     >
       <MessageCircle aria-hidden className="size-5" />
       {label}

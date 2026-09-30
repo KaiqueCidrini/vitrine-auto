@@ -8,6 +8,10 @@ import { z } from "zod";
 const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use cor hexadecimal no formato #RRGGBB");
 
 export const FONT_OPTIONS = ["inter", "montserrat", "outfit"] as const;
+/** Fontes serifadas para títulos (visual editorial, estilo montadoras premium). */
+export const HEADING_FONT_OPTIONS = ["playfair-display", "cormorant-garamond", "fraunces"] as const;
+/** "pill": botões totalmente arredondados. "rounded": seguem o arredondamento base do tema. */
+export const BUTTON_SHAPES = ["pill", "rounded"] as const;
 export const BENEFIT_ICONS = [
   "shield-check",
   "badge-percent",
@@ -21,6 +25,9 @@ export const BENEFIT_ICONS = [
 
 const themeSchema = z.object({
   font: z.enum(FONT_OPTIONS),
+  /** Fonte dos títulos. Sem ela, os títulos usam a fonte principal em negrito. */
+  headingFont: z.enum(HEADING_FONT_OPTIONS).optional(),
+  buttonShape: z.enum(BUTTON_SHAPES).default("pill"),
   /** Arredondamento base dos cantos (ex.: "0.75rem"; "0" para visual reto). */
   radius: z.string().regex(/^\d+(\.\d+)?(rem|px)?$/),
   colors: z.object({
@@ -100,6 +107,8 @@ export const tenantConfigSchema = z.object({
   tagline: z.string().min(1),
   logo: z.object({
     src: z.string().startsWith("/"),
+    /** Versão clara do logo, usada no cabeçalho transparente sobre o banner. Sem ela, usa `src`. */
+    srcOnDark: z.string().startsWith("/").optional(),
     alt: z.string().min(1),
     width: z.number().int().positive(),
     height: z.number().int().positive(),
@@ -147,3 +156,4 @@ export type TenantTheme = TenantConfig["theme"];
 export type HomeSection = z.infer<typeof homeSectionSchema>;
 export type BenefitIcon = (typeof BENEFIT_ICONS)[number];
 export type FontOption = (typeof FONT_OPTIONS)[number];
+export type HeadingFontOption = (typeof HEADING_FONT_OPTIONS)[number];

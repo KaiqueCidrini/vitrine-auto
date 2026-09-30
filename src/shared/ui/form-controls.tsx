@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 
 const CONTROL_CLASSES = cn(
-  "w-full rounded-md border border-border bg-surface px-3 text-sm text-foreground",
+  "w-full rounded-md border border-border bg-surface px-3 text-sm text-foreground transition duration-200",
   "placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
   "disabled:opacity-60 aria-invalid:border-danger",
 );

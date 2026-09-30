@@ -8,9 +8,17 @@ export const demoTenant: TenantConfigInput = {
   slug: "demo",
   name: "Rota Prime Seminovos",
   tagline: "Seminovos revisados, com procedência e garantia.",
-  logo: { src: "/tenants/demo/logo.svg", alt: "Rota Prime Seminovos", width: 180, height: 40 },
+  logo: {
+    src: "/tenants/demo/logo.svg",
+    srcOnDark: "/tenants/demo/logo-on-dark.svg",
+    alt: "Rota Prime Seminovos",
+    width: 180,
+    height: 40,
+  },
   theme: {
     font: "inter",
+    headingFont: "playfair-display",
+    buttonShape: "pill",
     radius: "0.75rem",
     colors: {
       primary: "#0B3D91",

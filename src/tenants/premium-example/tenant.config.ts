@@ -12,6 +12,8 @@ export const premiumExampleTenant: TenantConfigInput = {
   logo: { src: "/tenants/premium-example/logo.svg", alt: "Nobre Motors", width: 170, height: 40 },
   theme: {
     font: "montserrat",
+    headingFont: "cormorant-garamond",
+    buttonShape: "rounded",
     radius: "0",
     colors: {
       primary: "#C8A45D",

@@ -12,6 +12,18 @@ export function isDarkColor(hexColor: string): boolean {
   return luminance < 0.4;
 }
 
+const PILL_RADIUS = "9999px";
+
+/**
+ * Títulos serifados ficam elegantes em peso normal; títulos na fonte do texto
+ * precisam de negrito para ter presença.
+ */
+function buildHeadingTypography(theme: TenantTheme) {
+  return theme.headingFont
+    ? { weight: "400", tracking: "-0.01em" }
+    : { weight: "700", tracking: "-0.03em" };
+}
+
 /**
  * Converte o tema da concessionária em variáveis CSS aplicadas no <html>.
  * O Tailwind lê essas variáveis (veja globals.css), então nenhum componente
@@ -19,6 +31,8 @@ export function isDarkColor(hexColor: string): boolean {
  */
 export function buildThemeStyle(theme: TenantTheme): CSSProperties {
   const { colors } = theme;
+  const radius = theme.radius === "0" ? "0px" : theme.radius;
+  const heading = buildHeadingTypography(theme);
 
   return {
     colorScheme: isDarkColor(colors.background) ? "dark" : "light",
@@ -35,6 +49,9 @@ export function buildThemeStyle(theme: TenantTheme): CSSProperties {
     "--brand-header-foreground": colors.headerForeground,
     "--brand-footer-background": colors.footerBackground,
     "--brand-footer-foreground": colors.footerForeground,
-    "--brand-radius": theme.radius === "0" ? "0px" : theme.radius,
+    "--brand-radius": radius,
+    "--brand-button-radius": theme.buttonShape === "pill" ? PILL_RADIUS : radius,
+    "--brand-heading-weight": heading.weight,
+    "--brand-heading-tracking": heading.tracking,
   } as CSSProperties;
 }

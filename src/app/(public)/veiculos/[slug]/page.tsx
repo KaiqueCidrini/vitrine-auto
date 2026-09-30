@@ -1,9 +1,9 @@
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
-import { cache } from "react";
+import { cache, type ReactNode } from "react";
 
 import { fillMessageTemplate } from "@/features/contact/build-whatsapp-link";
 import { WhatsAppLinkButton } from "@/features/contact/components/whatsapp-link-button";
@@ -24,6 +24,7 @@ import {
 } from "@/features/vehicles/server/vehicle-queries";
 import { Badge } from "@/shared/ui/badge";
 import { Container } from "@/shared/ui/container";
+import { Reveal } from "@/shared/ui/reveal";
 import { getTenant } from "@/tenants/tenant-registry";
 
 // generateMetadata e a página pedem o mesmo veículo: o cache evita a consulta duplicada.
@@ -101,70 +102,95 @@ export default async function VehicleDetailsPage({ params }: PageProps<"/veiculo
       />
 
       <Container className="py-8 lg:py-12">
-        <Link
-          href="/veiculos"
-          className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-2 text-sm font-medium"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> Voltar para o estoque
-        </Link>
+        <nav aria-label="Você está em" className="animate-fade-up mb-8">
+          <ol className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
+            <li>
+              <Link
+                href="/veiculos"
+                className="hover:text-foreground group inline-flex items-center gap-2 font-medium transition"
+              >
+                <ArrowLeft
+                  className="ease-premium size-4 transition-transform duration-300 group-hover:-translate-x-1"
+                  aria-hidden
+                />
+                Estoque
+              </Link>
+            </li>
+            <li aria-hidden>/</li>
+            <li aria-current="page" className="text-foreground truncate">
+              {title}
+            </li>
+          </ol>
+        </nav>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
-          <div className="flex flex-col gap-10">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14">
+          <div className="animate-fade-up flex min-w-0 flex-col gap-16 [animation-delay:100ms]">
             <VehicleGallery photos={vehicle.photos} vehicleTitle={fullTitle} />
 
-            <section aria-labelledby="specs-title">
-              <h2 id="specs-title" className="mb-4 text-xl font-bold">
-                Ficha do veículo
-              </h2>
-              <VehicleSpecList vehicle={vehicle} />
-            </section>
+            <Reveal>
+              <section aria-labelledby="specs-title">
+                <DetailSectionTitle id="specs-title">Ficha do veículo</DetailSectionTitle>
+                <VehicleSpecList vehicle={vehicle} />
+              </section>
+            </Reveal>
 
             {vehicle.features.length > 0 && (
-              <section aria-labelledby="features-title">
-                <h2 id="features-title" className="mb-4 text-xl font-bold">
-                  Opcionais
-                </h2>
-                <ul className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-                  {vehicle.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm">
-                      <Check className="text-primary size-4 shrink-0" aria-hidden />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              <Reveal>
+                <section aria-labelledby="features-title">
+                  <DetailSectionTitle id="features-title">Opcionais</DetailSectionTitle>
+                  <ul className="flex flex-wrap gap-2">
+                    {vehicle.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="border-border rounded-button inline-flex items-center gap-2 border px-4 py-2 text-sm"
+                      >
+                        <Check className="text-primary size-4 shrink-0" aria-hidden />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </Reveal>
             )}
 
             {vehicle.description && (
-              <section aria-labelledby="description-title">
-                <h2 id="description-title" className="mb-4 text-xl font-bold">
-                  Sobre este carro
-                </h2>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {vehicle.description}
-                </p>
-              </section>
+              <Reveal>
+                <section aria-labelledby="description-title">
+                  <DetailSectionTitle id="description-title">Sobre este carro</DetailSectionTitle>
+                  <p className="text-muted-foreground max-w-prose text-lg leading-relaxed break-words whitespace-pre-line">
+                    {vehicle.description}
+                  </p>
+                </section>
+              </Reveal>
             )}
           </div>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="border-border bg-surface rounded-lg border p-6 shadow-sm">
+          <aside className="animate-fade-up [animation-delay:200ms] lg:sticky lg:top-[calc(var(--header-height)+1.5rem)] lg:self-start">
+            <div className="border-border bg-surface rounded-lg border p-7 shadow-xl shadow-black/5">
               {isSold && (
-                <Badge tone="danger" className="mb-3">
+                <Badge tone="danger" className="mb-4">
                   Vendido
                 </Badge>
               )}
-              <h1 className="text-2xl leading-tight font-extrabold sm:text-3xl">{title}</h1>
-              {vehicle.version && <p className="text-muted-foreground mt-1">{vehicle.version}</p>}
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="eyebrow text-muted-foreground">{vehicle.brand}</p>
+              <h1 className="font-display mt-3 text-4xl leading-[1.05] sm:text-5xl">
+                <span className="sr-only">{vehicle.brand} </span>
+                {vehicle.model}
+              </h1>
+              {vehicle.version && (
+                <p className="text-muted-foreground mt-2 text-lg">{vehicle.version}</p>
+              )}
+              <p className="text-muted-foreground mt-4 text-sm">
                 {formatYears(vehicle.manufactureYear, vehicle.modelYear)} ·{" "}
                 {formatMileage(vehicle.mileageKm)}
               </p>
 
-              <p className="text-muted-foreground mt-6 text-sm">Preço</p>
-              <p className="text-primary text-4xl font-extrabold tracking-tight">
-                {formatPrice(vehicle.priceInCents)}
-              </p>
+              <div className="border-border mt-6 border-t pt-6">
+                <p className="text-muted-foreground text-sm">Preço</p>
+                <p className="mt-1 text-4xl font-semibold tracking-tight">
+                  {formatPrice(vehicle.priceInCents)}
+                </p>
+              </div>
 
               <div className="mt-6 flex flex-col gap-3">
                 {isSold ? (
@@ -186,22 +212,28 @@ export default async function VehicleDetailsPage({ params }: PageProps<"/veiculo
                 </p>
               </div>
 
-              <div className="border-border text-muted-foreground mt-6 border-t pt-5 text-sm">
-                <p className="text-foreground font-semibold">{tenant.name}</p>
-                <p>
-                  {tenant.contact.address.street} · {tenant.contact.address.city}/
-                  {tenant.contact.address.state}
-                </p>
+              <div className="border-border text-muted-foreground mt-6 flex gap-3 border-t pt-5 text-sm">
+                <MapPin className="text-foreground mt-0.5 size-4 shrink-0" aria-hidden />
+                <div>
+                  <p className="text-foreground font-semibold">{tenant.name}</p>
+                  <p>
+                    {tenant.contact.address.street} · {tenant.contact.address.city}/
+                    {tenant.contact.address.state}
+                  </p>
+                </div>
               </div>
             </div>
           </aside>
         </div>
 
         {similarVehicles.length > 0 && (
-          <section aria-labelledby="similar-title" className="mt-16">
-            <h2 id="similar-title" className="mb-6 text-2xl font-bold">
-              Você também pode gostar
-            </h2>
+          <section aria-labelledby="similar-title" className="border-border mt-24 border-t pt-16">
+            <Reveal>
+              <p className="eyebrow text-muted-foreground">Continue explorando</p>
+              <h2 id="similar-title" className="font-display mt-4 mb-10 text-4xl sm:text-5xl">
+                Você também pode gostar
+              </h2>
+            </Reveal>
             <VehicleGrid vehicles={similarVehicles} />
           </section>
         )}
@@ -211,11 +243,11 @@ export default async function VehicleDetailsPage({ params }: PageProps<"/veiculo
       {!isSold && (
         <div
           data-sticky-contact-bar
-          className="border-border bg-surface/95 fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t p-3 backdrop-blur lg:hidden"
+          className="border-border bg-surface fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t p-3 shadow-[0_-10px_30px_-18px_rgb(0_0_0_/_0.35)] lg:hidden"
         >
           <div className="min-w-0 flex-1">
             <p className="text-muted-foreground truncate text-xs">{fullTitle}</p>
-            <p className="text-primary text-lg font-extrabold">
+            <p className="text-lg font-semibold tracking-tight">
               {formatPrice(vehicle.priceInCents)}
             </p>
           </div>
@@ -227,5 +259,13 @@ export default async function VehicleDetailsPage({ params }: PageProps<"/veiculo
         </div>
       )}
     </>
+  );
+}
+
+function DetailSectionTitle({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <h2 id={id} className="font-display mb-6 text-3xl">
+      {children}
+    </h2>
   );
 }

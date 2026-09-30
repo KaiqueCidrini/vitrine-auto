@@ -49,10 +49,10 @@ export function VehicleSearchFilters({ filters, brands }: VehicleSearchFiltersPr
     <form
       action="/veiculos"
       method="get"
-      className="border-border bg-surface rounded-lg border p-5"
+      className="border-border bg-surface rounded-lg border p-6"
     >
-      <p className="mb-4 flex items-center gap-2 text-sm font-bold">
-        <SlidersHorizontal className="size-4" aria-hidden /> Filtrar estoque
+      <p className="eyebrow text-muted-foreground mb-5 flex items-center gap-2">
+        <SlidersHorizontal className="size-3.5" aria-hidden /> Filtrar estoque
       </p>
 
       <div className="grid gap-4">

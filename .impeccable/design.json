@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-29T00:00:00.000Z",
+  "title": "Design System: Vitrine Auto",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Deep Route Blue",
+        "canonical": "#0B3D91",
+        "tonalRamp": [
+          "#06214f",
+          "#092d6b",
+          "#0b3d91",
+          "#1650b8",
+          "#3b6dc7",
+          "#6f92d8",
+          "#a7bce9",
+          "#dbe4f6"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Route Amber",
+        "canonical": "#F59E0B",
+        "tonalRamp": [
+          "#5c3a02",
+          "#8a5703",
+          "#b97705",
+          "#e39408",
+          "#f59e0b",
+          "#f8b545",
+          "#fbcd80",
+          "#fde6bd"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#F6F7F9"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Pure Surface",
+        "canonical": "#FFFFFF"
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Ink Slate",
+        "canonical": "#0F172A"
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Quiet Slate",
+        "canonical": "#5B6474"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#E2E6EC"
+      },
+      "footer-background": {
+        "role": "neutral",
+        "displayName": "Deep Harbor",
+        "canonical": "#0A1A33"
+      },
+      "danger": {
+        "role": "danger",
+        "displayName": "Signal Red",
+        "canonical": "#DC2626"
+      },
+      "success": {
+        "role": "success",
+        "displayName": "Signal Green",
+        "canonical": "#16A34A"
+      },
+      "whatsapp": {
+        "role": "utility",
+        "displayName": "WhatsApp Green",
+        "canonical": "#25D366"
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero <h1> only." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles (SectionHeading)." },
+      "title": { "displayName": "Title", "purpose": "Card and in-content headings; always sans, doubles as link text." },
+      "body": { "displayName": "Body", "purpose": "Descriptive copy, specs, form text." },
+      "label": { "displayName": "Label / Eyebrow", "purpose": "Eyebrows, badges, footer block titles; uppercase, tracked, dimmed." }
+    },
+    "shadows": [
+      { "name": "hover-lift", "value": "0 25px 50px -12px rgb(0 0 0 / 0.1)", "purpose": "Card/button hover response only (shadow-2xl shadow-black/10)." },
+      { "name": "floating-fixed", "value": "0 10px 15px -3px rgb(0 0 0 / 0.25)", "purpose": "The fixed WhatsApp button, which has no resting page position." },
+      { "name": "scrolled-header", "value": "0 10px 30px -18px rgb(0 0 0 / 0.35)", "purpose": "Header once [data-scrolled] is set." }
+    ],
+    "motion": [
+      { "name": "ease-premium", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Default easing for every transition and animation in the system." },
+      { "name": "fade-up", "value": "1s ease-premium both", "purpose": "Hero line-by-line and section entrance choreography." },
+      { "name": "ken-burns", "value": "2.8s ease-premium both", "purpose": "Slow zoom-out on hero photography." },
+      { "name": "drift", "value": "18s ease-in-out infinite alternate", "purpose": "Ambient background blobs on photo-less heroes." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default call to action; pill-shaped, brightens and lifts on hover, presses on click.",
+      "html": "<button class=\"ds-btn-primary\">Ver estoque</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.75rem; padding: 0 1.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.875rem; white-space: nowrap; background: var(--color-primary, #0B3D91); color: var(--color-primary-foreground, #FFFFFF); transition: filter 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.2s; } .ds-btn-primary:hover { filter: brightness(1.1); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-primary, #0B3D91); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action that must not compete with the primary CTA.",
+      "html": "<button class=\"ds-btn-outline\">Falar com um vendedor</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.75rem; padding: 0 1.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.875rem; border: 1px solid var(--color-border, #E2E6EC); background: var(--color-surface, #FFFFFF); color: var(--color-foreground, #0F172A); transition: border-color 0.3s; } .ds-btn-outline:hover { border-color: rgb(15 23 42 / 0.4); }"
+    },
+    {
+      "name": "Featured Badge",
+      "kind": "chip",
+      "refersTo": "badge-accent",
+      "description": "Marks a featured vehicle; sits top-left over the card photo.",
+      "html": "<span class=\"ds-badge-accent\">Destaque</span>",
+      "css": ".ds-badge-accent { display: inline-flex; align-items: center; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; background: var(--color-accent, #F59E0B); color: var(--color-accent-foreground, #1F1300); }"
+    },
+    {
+      "name": "Vehicle Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Signature listing card: photo, spec row, and a price/arrow footer; the model title is the sole focus target, extended over the whole card.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-photo\"><img src=\"https://placehold.co/420x315\" alt=\"\" /><span class=\"ds-badge-accent\" style=\"position:absolute;top:0.75rem;left:0.75rem\">Destaque</span></div><div class=\"ds-card-body\"><p class=\"ds-eyebrow\">Toyota</p><h3 class=\"ds-card-title\">Corolla</h3><p class=\"ds-card-specs\">2022/2023 · 32.000 km · Automático</p><div class=\"ds-card-footer\"><span class=\"ds-card-price\">R$ 98.900</span><span class=\"ds-card-arrow\">&#8599;</span></div></div></article>",
+      "css": ".ds-card { display: flex; flex-direction: column; width: 100%; } .ds-card-photo { position: relative; aspect-ratio: 4/3; overflow: hidden; border-radius: 0.75rem; background: rgb(15 23 42 / 0.05); } .ds-card-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s cubic-bezier(0.16,1,0.3,1); } .ds-card:hover .ds-card-photo img { transform: scale(1.06); } .ds-card-body { display: flex; flex-direction: column; flex: 1; padding-top: 1.25rem; } .ds-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-muted-foreground, #5B6474); } .ds-card-title { font-family: var(--font-heading, 'Playfair Display', serif); font-size: 1.5rem; line-height: 1.2; margin-top: 0.5rem; color: var(--color-foreground, #0F172A); } .ds-card-specs { color: var(--color-muted-foreground, #5B6474); font-size: 0.875rem; margin: 1rem 0 1.25rem; } .ds-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--color-border, #E2E6EC); padding-top: 1rem; margin-top: auto; } .ds-card-price { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--color-foreground, #0F172A); } .ds-card-arrow { display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 9999px; border: 1px solid var(--color-border, #E2E6EC); transition: all 0.5s cubic-bezier(0.16,1,0.3,1); } .ds-card:hover .ds-card-arrow { background: var(--color-primary, #0B3D91); color: var(--color-primary-foreground, #FFFFFF); border-color: transparent; transform: rotate(45deg); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Base form control shared by Input/Textarea/Select in the admin panel and search form.",
+      "html": "<input class=\"ds-input\" placeholder=\"Buscar por marca ou modelo\" />",
+      "css": ".ds-input { width: 100%; height: 2.75rem; padding: 0 0.75rem; border-radius: 0.75rem; border: 1px solid var(--color-border, #E2E6EC); background: var(--color-surface, #FFFFFF); color: var(--color-foreground, #0F172A); font-size: 0.875rem; transition: border-color 0.2s, box-shadow 0.2s; } .ds-input::placeholder { color: rgb(91 100 116 / 0.7); } .ds-input:focus { outline: none; border-color: var(--color-primary, #0B3D91); box-shadow: 0 0 0 2px rgb(11 61 145 / 0.2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Confident Showroom",
+    "overview": "Vitrine Auto is not one dealership's look — it's a stage built to make any dealership feel like a real showroom the moment a client's colors and type are dropped in. Every reskin (from demo's blue-and-amber daylight dealership to premium-example's black-and-gold boutique) inherits the same underlying grammar: a cinematic full-bleed hero with a slow Ken Burns pull-back or ambient drifting light, staggered fade-up entrances, generous whitespace, and interactive surfaces that respond with confidence — brightening, lifting, rotating — the instant a visitor's cursor arrives. Nothing sits static out of laziness; stillness is the resting state, and motion is always a direct reply to attention or interaction. The aspiration is a premium-automotive-brand level of restraint and polish — full-bleed photography, unhurried pacing, generous negative space — while keeping today's structure, copy, and behavior untouched. That bar is not yet fully reached everywhere in the codebase; closing the gap is refinement work, not a rebuild.",
+    "keyCharacteristics": [
+      "Full-bleed cinematic hero (photo Ken Burns pull-back, or ambient drifting color blobs + faint grid when no photo exists)",
+      "Staggered fade-up entrance choreography on hero copy and on every section as it enters the viewport",
+      "Flat-at-rest surfaces; shadow and lift appear only as a direct response to hover/focus",
+      "Pill-shaped buttons by default (fully reskinnable to the theme's base radius instead)",
+      "Editorial serif display type as an optional register on top of a confident sans-serif base",
+      "A single reserved utility color (WhatsApp green) that is never treated as a brand color"
+    ],
+    "rules": [
+      { "name": "The One Stage, Many Lights Rule", "body": "No component may hardcode a hex value belonging to one tenant. If a color needs to appear, it names a role (bg-primary, text-muted-foreground, …) and lets the active tenant's CSS variables answer.", "section": "colors" },
+      { "name": "The Serif-Is-a-Register Rule", "body": "headingFont is optional per tenant. No component may assume a serif is loaded; the fallback (bold sans, tighter tracking) must look intentional on its own, not like a missing font.", "section": "typography" },
+      { "name": "The Flat-at-Rest Rule", "body": "A shadow with no hover, focus, or fixed-position justification is a defect, not a style choice — add elevation only as a state response.", "section": "elevation" },
+      { "name": "The Pill-by-Default Rule", "body": "Buttons read as pills unless a tenant deliberately asks for \"rounded\"; this is the strongest single silhouette cue that ties every reskin back to the same system.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do resolve every color, radius, and button shape through the theme's CSS custom properties — never a literal hex or a hardcoded rounded-lg.",
+      "Do treat shadow as a response to hover, focus, or genuine floating position — not a resting decoration.",
+      "Do keep every animation degrading gracefully: instantly visible without JS, instant without motion preference.",
+      "Do keep the WhatsApp green scoped to WhatsApp contact affordances only."
+    ],
+    "donts": [
+      "Don't give a card, section, or header a resting shadow it hasn't earned through interaction or fixed positioning.",
+      "Don't assume a serif headingFont is present — the bold-sans fallback must look deliberate.",
+      "Don't add a second focusable link/button inside a VehicleCard; the whole-card link is the only target.",
+      "Don't let a component read correctly for one tenant's palette and break for another's — that's a token leak, not a style variance."
+    ]
+  }
+}

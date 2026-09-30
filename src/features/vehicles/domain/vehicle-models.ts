@@ -42,6 +42,13 @@ export interface AdminVehicleListItem extends VehicleSummary {
   photoCount: number;
 }
 
+/** Uma carroceria com estoque, para os atalhos da home (com foto de um carro dela). */
+export interface BodyTypeShowcaseItem {
+  bodyType: BodyType;
+  total: number;
+  coverPhoto: VehiclePhotoView | null;
+}
+
 export interface PaginatedResult<TItem> {
   items: TItem[];
   totalItems: number;

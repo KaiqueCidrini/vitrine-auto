@@ -26,6 +26,7 @@ import {
 } from "../domain/vehicle-attributes";
 import type {
   AdminVehicleListItem,
+  BodyTypeShowcaseItem,
   PaginatedResult,
   VehicleDetails,
   VehiclePhotoView,
@@ -221,6 +222,11 @@ export async function listVehiclesForAdmin(filters: {
   }));
 }
 
+/** Quantidade total de carros publicados (estoque ativo). */
+export async function countPublishedVehicles(): Promise<number> {
+  return getDatabase().$count(vehicles, eq(vehicles.status, "published"));
+}
+
 /** Quantidade de carros publicados por carroceria (só as que têm estoque). */
 export async function countPublishedVehiclesByBodyType(): Promise<
   { bodyType: BodyType; total: number }[]
@@ -231,6 +237,37 @@ export async function countPublishedVehiclesByBodyType(): Promise<
     .where(eq(vehicles.status, "published"))
     .groupBy(vehicles.bodyType)
     .orderBy(desc(count()));
+}
+
+/** Só veículos com pelo menos uma foto (para vitrines que dependem de imagem). */
+function hasAnyPhoto(): SQL {
+  const vehiclesWithPhotos = getDatabase()
+    .selectDistinct({ vehicleId: vehiclePhotos.vehicleId })
+    .from(vehiclePhotos);
+  return inArray(vehicles.id, vehiclesWithPhotos);
+}
+
+/** Foto de capa do carro mais relevante de uma carroceria (destaque primeiro, depois o mais novo). */
+async function findBodyTypeCoverPhoto(bodyType: BodyType): Promise<VehiclePhotoView | null> {
+  const row = await getDatabase().query.vehicles.findFirst({
+    where: and(eq(vehicles.status, "published"), eq(vehicles.bodyType, bodyType), hasAnyPhoto()),
+    orderBy: [desc(vehicles.isFeatured), desc(vehicles.publishedAt)],
+    with: { photos: photosInOrder(1) },
+  });
+  const [cover] = row?.photos ?? [];
+  return cover ? toPhotoView(cover) : null;
+}
+
+/** Carrocerias com estoque, cada uma com a quantidade e uma foto ilustrativa. */
+export async function listBodyTypeShowcase(): Promise<BodyTypeShowcaseItem[]> {
+  const bodyTypeCounts = await countPublishedVehiclesByBodyType();
+  return Promise.all(
+    bodyTypeCounts.map(async ({ bodyType, total }) => ({
+      bodyType,
+      total,
+      coverPhoto: await findBodyTypeCoverPhoto(bodyType),
+    })),
+  );
 }
 
 /**

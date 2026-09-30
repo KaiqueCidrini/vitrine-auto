@@ -18,11 +18,11 @@ export function VehiclePagination({ filters, currentPage, totalPages }: VehicleP
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   return (
-    <nav aria-label="Paginação" className="mt-10 flex items-center justify-center gap-1">
+    <nav aria-label="Paginação" className="mt-16 flex items-center justify-center gap-1">
       {currentPage > 1 && (
         <Link
           href={pageHref(currentPage - 1)}
-          className="hover:bg-foreground/5 flex size-10 items-center justify-center rounded-md"
+          className="hover:bg-foreground/5 flex size-10 items-center justify-center rounded-full"
           aria-label="Página anterior"
         >
           <ChevronLeft className="size-5" aria-hidden />
@@ -34,8 +34,8 @@ export function VehiclePagination({ filters, currentPage, totalPages }: VehicleP
           href={pageHref(page)}
           aria-current={page === currentPage ? "page" : undefined}
           className={cn(
-            "flex size-10 items-center justify-center rounded-md text-sm font-semibold",
-            page === currentPage ? "bg-primary text-primary-foreground" : "hover:bg-foreground/5",
+            "flex size-10 items-center justify-center rounded-full text-sm font-semibold",
+            page === currentPage ? "bg-foreground text-background" : "hover:bg-foreground/5",
           )}
         >
           {page}
@@ -44,7 +44,7 @@ export function VehiclePagination({ filters, currentPage, totalPages }: VehicleP
       {currentPage < totalPages && (
         <Link
           href={pageHref(currentPage + 1)}
-          className="hover:bg-foreground/5 flex size-10 items-center justify-center rounded-md"
+          className="hover:bg-foreground/5 flex size-10 items-center justify-center rounded-full"
           aria-label="Próxima página"
         >
           <ChevronRight className="size-5" aria-hidden />
